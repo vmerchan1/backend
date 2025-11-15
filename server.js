@@ -31,17 +31,37 @@ app.get("/users", async (req, res) => {
 });
 
 app.post("/users", async (req, res) => {
-  const { name, email } = req.body;
-  if (!name || !email) return res.status(400).json({ error: "Faltan campos: name, email" });
-
-  const { data, error } = await supabase
-    .from("users")
-    .insert([{ name, email }])
-    .select("*");
-
-  if (error) return res.status(400).json({ error: error.message });
-  res.json(data);
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    if (!token) return res.status(401).json({ error: "No autorizado" });
+  
+    const { data: user, error: authError } = await supabase.auth.getUser(token);
+    if (authError) return res.status(401).json({ error: "Token inválido" });
+  
+    const { name, email, phone, role } = req.body;
+    const { data, error } = await supabase
+      .from("users")
+      .insert([{ name, email, phone, role }])
+      .select("*");
+  
+    if (error) return res.status(400).json({ error: error.message });
+    res.json(data);
 });
+
+// Registro de usuario
+app.post("/auth/register", async (req, res) => {
+    const { email, password } = req.body;
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) return res.status(400).json({ error: error.message });
+    res.json(data);
+  });
+  
+  // Login de usuario
+app.post("/auth/login", async (req, res) => {
+    const { email, password } = req.body;
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return res.status(400).json({ error: error.message });
+    res.json(data);
+  });
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`API p_prueba corriendo en puerto ${port}`));
