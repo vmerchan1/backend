@@ -25,21 +25,21 @@ app.get("/health", (req, res) => res.json({ ok: true, service: "p_prueba_api" })
 // 🔐 Autenticación básica
 // ----------------------
 
-// Registro de usuario con email/contraseña
+// Registro de usuario
 app.post("/auth/register", async (req, res) => {
-  const { email, password } = req.body;
-  const { data, error } = await supabase.auth.signUp({ email, password });
-  if (error) return res.status(400).json({ error: error.message });
-  res.json(data);
-});
-
-// Login de usuario
-app.post("/auth/login", async (req, res) => {
-  const { email, password } = req.body;
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) return res.status(400).json({ error: error.message });
-  res.json(data);
-});
+    const { email, password } = req.body;
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) return res.status(400).json({ error: error.message });
+    res.json(data);
+  });
+  
+  // Login de usuario
+  app.post("/auth/login", async (req, res) => {
+    const { email, password } = req.body;
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return res.status(400).json({ error: error.message });
+    res.json(data);
+  });
 
 // ----------------------
 // 👥 Gestión de usuarios
